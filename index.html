@@ -99,6 +99,40 @@ input:disabled {
   cursor: pointer;
 }
 
+/* Responsive for max-width 480px (mobile) */
+@media (max-width: 480px) {
+  .container {
+    width: 90%; /* container chhota aur mobile-friendly */
+    padding: 10px;
+  }
+
+  .header h1 {
+    font-size: 24px; /* font thoda chhota */
+  }
+
+  .header p {
+    font-size: 14px;
+  }
+
+  input {
+    padding: 8px; /* input padding reduce kiya */
+  }
+
+  .otp-box input {
+    flex: 1; /* OTP input full width ke liye */
+  }
+
+  .confirm-btn {
+    padding: 10px;
+    font-size: 14px;
+  }
+
+  .login-text {
+    font-size: 12px;
+  }
+}
+
+
   </style>
 </head>
 <body>
