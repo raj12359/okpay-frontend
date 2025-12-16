@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>OK pay customer care</title>
+  <style>
+    * {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: Arial, sans-serif;
+}
+
+body {
+  background: linear-gradient(to bottom, #edd011, #e63b07);
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.container {
+  width: 350px;
+}
+
+.header {
+  color: #fff;
+  margin-bottom: 20px;
+}
+
+.header h1 {
+  font-size: 28px;
+}
+.header p{
+    margin-top: 10px;
+}
+
+.card {
+  background: #2b2b2b;
+  padding: 20px;
+  border-radius: 12px;
+}
+
+label {
+  color: #fff;
+  font-size: 14px;
+  margin-top: 12px;
+  display: block;
+}
+
+input {
+  width: 100%;
+  padding: 10px;
+  margin-top: 6px;
+  border-radius: 6px;
+  border: none;
+  outline: none;
+}
+
+input:disabled {
+  background: #666;
+  color: #fff;
+}
+
+.otp-box {
+  display: flex;
+  gap: 8px;
+}
+
+.send-btn {
+  background: #fff;
+  border: none;
+  padding: 0 12px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.login-text {
+  color: #ccc;
+  margin: 15px 0;
+  font-size: 14px;
+  text-align: center;
+}
+
+.login-text span {
+  color: #ffc107;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.confirm-btn {
+  width: 100%;
+  padding: 12px;
+  background: #ff9c07;
+  border: none;
+  border-radius: 25px;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <div class="header">
+    <h1>Create account</h1>
+    <p>Welcome to join us OK Pay</p>
+  </div>
+
+  <div class="card">
+    <label>Phone</label>
+    <input type="text" placeholder="Enter phone number">
+
+    <label>New Password</label>
+    <input type="password" placeholder="New password">
+
+    <label>Confirm password</label>
+    <input type="password" placeholder="Confirm password">
+
+    <label>OTP</label>
+    <div class="otp-box">
+      <input type="text" placeholder=" Send">
+    </div>
+
+    <label>Invitation code</label>
+    <input type="text" value="341c8cMkwy" disabled>
+
+    <p class="login-text">
+      Already have an account ?
+      <span id="loginLink">Log in</span>
+    </p>
+
+    <button class="confirm-btn">Confirm</button>
+  </div>
+</div>
+
+<script>
+    document.getElementById("loginLink").addEventListener("click", () => {
+  window.location.href = "signin.html";
+});
+</script>
+</body>
+</html>

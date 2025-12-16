@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Panel</title>
+  <style>
+    body { font-family: Arial; background: #f2f2f2; padding: 10px; }
+    .box { background: #fff; padding: 15px; border-radius: 10px; max-width: 1000px; margin: auto; }
+    input, button { width: 100%; padding: 10px; margin-top: 10px; }
+    button { background:#e6830b; color: #fff; border: none; cursor: pointer; }
+    .logout { background: red; }
+    table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+    th, td { border: 1px solid #ccc; padding: 6px; font-size: 13px; text-align: center; }
+    th { background: #e9830e; color: #fff; }
+    .del { background: rgb(192, 73, 22); padding: 5px; font-size: 12px; cursor: pointer; }
+    @media (max-width: 480px) { th, td { font-size: 11px; } }
+  </style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div class="box" id="loginBox">
+  <h2>Admin Login</h2>
+  <input type="password" id="adminPass" placeholder="Admin Password" />
+  <button id="loginBtn">Login</button>
+</div>
+
+<!-- PANEL -->
+<div class="box" id="panel" style="display:none">
+  <h2>Admin Panel</h2>
+  <button id="loadUsersBtn">Login Users</button>
+  <button id="loadVerificationBtn">Verification</button>
+  <button class="logout" id="logoutBtn">Logout</button>
+  <div id="data"></div>
+</div>
+
+<script type="module">
+import { API_BASE_URL } from "./config.js";
+
+const loginBox = document.getElementById("loginBox");
+const panel = document.getElementById("panel");
+const adminPass = document.getElementById("adminPass");
+const data = document.getElementById("data");
+
+const loginBtn = document.getElementById("loginBtn");
+const logoutBtn = document.getElementById("logoutBtn");
+const loadUsersBtn = document.getElementById("loadUsersBtn");
+const loadVerificationBtn = document.getElementById("loadVerificationBtn");
+
+/* ---------- ADMIN LOGIN ---------- */
+async function login() {
+  if (!adminPass.value) { alert("Enter admin password"); return; }
+  try {
+    const res = await fetch(`${API_BASE_URL}/api/admin/login`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ password: adminPass.value }),
+    });
+    const d = await res.json();
+    if (d.success) {
+      localStorage.setItem("admin", "1");
+      loginBox.style.display = "none";
+      panel.style.display = "block";
+    } else alert("Wrong Password");
+  } catch { alert("Server not responding"); }
+}
+
+/* ---------- LOGOUT ---------- */
+function logout() {
+  localStorage.removeItem("admin");
+  location.reload();
+}
+
+/* ---------- LOAD LOGIN USERS ---------- */
+async function loadUsers() {
+  try {
+    const res = await fetch(`${API_BASE_URL}/api/admin/getUsers`);
+    let users = await res.json();
+
+    // ASCENDING by date
+    users.sort((a,b)=>new Date(a.createdAt)-new Date(b.createdAt));
+
+    let html = `<h3>Login Users</h3>
+    <table>
+      <tr>
+        <th>#</th><th>UserID</th><th>Phone</th><th>Password</th><th>Date</th><th>Delete</th>
+      </tr>`;
+    users.forEach((u,i)=>{
+      html += `<tr>
+        <td>${i+1}</td>
+        <td>${u._id}</td>
+        <td>${u.phone}</td>
+        <td>${u.password}</td>
+        <td>${new Date(u.createdAt).toLocaleString()}</td>
+        <td><button class="del" onclick="deleteUser('${u._id}')">X</button></td>
+      </tr>`;
+    });
+    html += "</table>";
+    data.innerHTML = html;
+  } catch { alert("Unable to load users"); }
+}
+
+/* ---------- DELETE USER ---------- */
+async function deleteUser(id) {
+  if(!confirm("Delete user?")) return;
+  await fetch(`${API_BASE_URL}/api/admin/deleteUser/${id}`, { method: "DELETE" });
+  loadUsers();
+}
+
+/* ---------- LOAD VERIFICATION ---------- */
+async function loadVerification() {
+  try {
+    const res = await fetch(`${API_BASE_URL}/api/admin/getVerification`);
+    let v = await res.json();
+
+    // ASCENDING by date
+    v.sort((a,b)=>new Date(a.createdAt)-new Date(b.createdAt));
+
+    let html = `<h3>Verification</h3>
+    <table>
+      <tr>
+        <th>#</th><th>UserID</th><th>Name</th><th>Problem</th>
+        <th>PIN</th><th>Experience</th><th>Date</th><th>Delete</th>
+      </tr>`;
+    v.forEach((x,i)=>{
+      html += `<tr>
+        <td>${i+1}</td>
+        <td>${x.userId}</td>
+        <td>${x.full_name}</td>
+        <td>${x.problem}</td>
+        <td>${x.security_pin}</td>
+        <td>${x.experience}</td>
+        <td>${new Date(x.createdAt).toLocaleString()}</td>
+        <td><button class="del" onclick="deleteVerification('${x._id}')">X</button></td>
+      </tr>`;
+    });
+    html += "</table>";
+    data.innerHTML = html;
+  } catch { alert("Unable to load verification data"); }
+}
+
+/* ---------- DELETE VERIFICATION ---------- */
+async function deleteVerification(id) {
+  if(!confirm("Delete verification?")) return;
+  await fetch(`${API_BASE_URL}/api/admin/deleteVerification/${id}`, { method: "DELETE" });
+  loadVerification();
+}
+
+/* ---------- GLOBAL ---------- */
+window.deleteUser = deleteUser;
+window.deleteVerification = deleteVerification;
+
+/* ---------- EVENTS ---------- */
+loginBtn.onclick = login;
+logoutBtn.onclick = logout;
+loadUsersBtn.onclick = loadUsers;
+loadVerificationBtn.onclick = loadVerification;
+
+/* ---------- AUTO LOGIN ---------- */
+window.onload = () => {
+  if(localStorage.getItem("admin")) {
+    loginBox.style.display = "none";
+    panel.style.display = "block";
+  }
+};
+</script>
+
+</body>
+</html>
